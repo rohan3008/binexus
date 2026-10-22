@@ -1,7 +1,7 @@
 import { basename, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { findProjects } from './walk.js';
-import { gitSignals } from './git.js';
+import { gitSignals, newestTrackedMtime } from './git.js';
 import { inspectTree } from './artifacts.js';
 import { collectJobs, attachJobs } from './jobs.js';
 import { classify } from './classify.js';
@@ -16,11 +16,13 @@ export async function scan(rootArg, deps = {}) {
     deps.onProgress?.(path);
     const g = await gitSignals(path);
     const t = await inspectTree(path);
-    const signals = { ...g, newestSourceMtime: t.newestSourceMtime };
+    // For git repos, only non-ignored files count as activity (see git.js).
+    const newestSourceMtime = g.isGit ? await newestTrackedMtime(path) : t.newestSourceMtime;
+    const signals = { ...g, newestSourceMtime };
     const { class: cls, protected: prot } = classify(signals, now);
     projects.push({
       path, name: basename(path), class: cls, protected: prot,
-      lastCommit: g.lastCommit, newestSourceMtime: t.newestSourceMtime,
+      lastCommit: g.lastCommit, newestSourceMtime,
       unpushedCommits: g.unpushedCommits, uncommittedChanges: g.uncommittedChanges,
       isGit: g.isGit, hasUpstream: g.hasUpstream,
       totalBytes: t.totalBytes, artifactBytes: t.artifactBytes, artifacts: t.artifacts,

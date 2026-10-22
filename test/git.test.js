@@ -50,3 +50,26 @@ test('repo without upstream', async () => {
   assert.equal(s.unpushedCommits, null);
   await cleanup();
 });
+
+test('newestTrackedMtime ignores gitignored output but counts untracked source', async () => {
+  const { dir, cleanup } = await makeTmp();
+  await initRepo(dir);
+  const { utimes, mkdir } = await import('node:fs/promises');
+  const { newestTrackedMtime } = await import('../src/scan/git.js');
+  const old = new Date('2020-01-01T00:00:00Z');
+  const mid = new Date('2022-01-01T00:00:00Z');
+  const fresh = new Date('2026-10-01T00:00:00Z');
+  await writeFile(join(dir, '.gitignore'), 'data/\n');
+  await git(dir, 'add', '.'); await git(dir, 'commit', '-qm', 'ignore');
+  await utimes(join(dir, 'README.md'), old, old);
+  await utimes(join(dir, '.gitignore'), old, old);
+  await mkdir(join(dir, 'data'));
+  await writeFile(join(dir, 'data/run.json'), '{}');
+  await utimes(join(dir, 'data/run.json'), fresh, fresh);
+  assert.equal(await newestTrackedMtime(dir), old.toISOString());
+  await writeFile(join(dir, 'new-untracked.js'), 'x');
+  await utimes(join(dir, 'new-untracked.js'), mid, mid);
+  assert.equal(await newestTrackedMtime(dir), mid.toISOString());
+  assert.equal(await newestTrackedMtime(join(dir, 'data')), null);
+  await cleanup();
+});
