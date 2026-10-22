@@ -6,7 +6,7 @@
   "bin": { "binexus": "bin/binexus.js" },
   "files": ["bin", "src", "SKILL.md", "README.md", "LICENSE"],
   "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test test/" },
+  "scripts": { "test": "node --test test/*.test.js" },
   "license": "MIT",
   "repository": "github:rohan3008/binexus",
   "keywords": ["cleanup", "agent-skill", "claude-code", "launchd", "node_modules", "disk", "vibe-coding"]
