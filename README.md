@@ -1,23 +1,69 @@
 # binexus
 
-Find the dead vibe-coded projects on your machine and the background jobs
-they left running. You decide what to pause, strip, or delete. binexus never
-deletes anything on its own, and it never unlinks a file: "delete" means a
-move to a trash folder you can restore from.
+**Find the dead vibe-coded projects on your machine and the background jobs
+they left running. You decide what to pause, strip, or delete.**
 
-## Install into your coding agent
+binexus never deletes anything on its own. It scans, your coding agent asks
+you project by project, and every action is confirmed again before it runs.
+"Delete" means a move to a trash folder you can restore from. Nothing is
+ever unlinked.
+
+```
+40 projects: 21 active, 14 idle, 5 stale
+19164 MB of regenerable artifacts (node_modules, .venv, build, ...)
+
+Background jobs still running for idle/stale projects:
+  idle  edgefinder   <- launchd:com.edgefinder.daily
+  idle  moonscanner  <- launchd:com.moonscanner.backend
+```
+
+That is a real scan of the author's laptop. Two daemons had been waking up
+every day for projects untouched since the summer.
+
+## Install the skill (recommended)
+
+binexus is an [Agent Skill](https://agentskills.io). Your coding agent is
+the brain, the `binexus` CLI is the hands.
+
+**1. Add the skill to your agent.** This works for Claude Code, Cursor,
+Codex CLI, Gemini CLI, GitHub Copilot and any other agent that reads
+`SKILL.md` files:
 
 ```
 npx skills add rohan3008/binexus
 ```
 
-Then tell Claude Code, Cursor, Codex, or whichever agent you use:
+No `npx skills`? Copy the skill by hand. For Claude Code:
+
+```
+mkdir -p ~/.claude/skills/binexus
+curl -fsSL https://raw.githubusercontent.com/rohan3008/binexus/main/SKILL.md -o ~/.claude/skills/binexus/SKILL.md
+```
+
+For other agents, put `SKILL.md` wherever that agent loads skills from
+(`.agents/skills/binexus/SKILL.md` is read by most of them).
+
+**2. Ask your agent to run it:**
 
 > run binexus on ~/Documents
 
-The agent scans, shows you what it found, and asks you project by project
-what to do. It writes a plan file. You run the plan. Every action is
-confirmed again at that point.
+The agent runs the scan, shows you a summary, then goes through projects
+one at a time, worst offenders first. For each one you choose:
+
+| You say | What happens |
+|---|---|
+| keep | nothing |
+| pause | its background jobs stop; files untouched |
+| strip | regenerable artifacts are deleted; source and git stay |
+| delete | the whole folder moves to `~/.binexus/trash` |
+
+**3. Run the plan it wrote:**
+
+```
+npx binexus apply ~/Documents/binexus-plan.json
+```
+
+You get a `[y/N]` for every action. Default is no.
 
 ## Use it without an agent
 
@@ -28,8 +74,21 @@ npx binexus restore                   # list the trash
 npx binexus restore 2026-10-22-name   # put one project back
 ```
 
-`plan.json` is a list of `{path, action}` where action is `pause`, `strip`,
-or `delete`. See `SKILL.md` for the exact shape.
+`plan.json` looks like this:
+
+```json
+{
+  "version": 1,
+  "reportPath": "/Users/you/Documents/report.json",
+  "actions": [
+    {"path": "/Users/you/Documents/old-thing", "action": "pause"},
+    {"path": "/Users/you/Documents/bigger-thing", "action": "strip"},
+    {"path": "/Users/you/Documents/dead-thing", "action": "delete"}
+  ]
+}
+```
+
+Requires Node 20 or newer. No other dependencies.
 
 ## What it looks for
 
@@ -38,20 +97,20 @@ A project is any folder with `.git`, `package.json`, `pyproject.toml`,
 
 | Signal | Meaning |
 |---|---|
-| last commit, newest source file | last activity. Build artifacts and `.git` internals do not count. |
-| class | `active` under 30 days, `idle` to 120 days, `stale` beyond |
+| last commit, newest source file | last activity. Build artifacts, `.git` internals and gitignored output (logs, databases) do not count, so a daemon writing logs cannot make a dead project look alive. |
+| class | `active` under 30 days, `idle` up to 120 days, `stale` beyond |
 | protected | unpushed commits, uncommitted changes, no upstream, or not git. Deleting could lose work that exists nowhere else. |
 | artifacts | `node_modules`, `.venv`, `venv`, `build`, `dist`, `.build`, `DerivedData`, `.next`, `.turbo`, `.cache`, `__pycache__`, `.pytest_cache`, Rust `target` |
 | jobs | launchd agents in `~/Library/LaunchAgents`, crontab lines, pm2 processes whose paths point inside the project |
 
-The jobs are the part nothing else catches. A daily launchd agent for a
-project you abandoned in June is still waking up every morning.
+The jobs are the part nothing else catches. Disk cleaners count bytes. They
+do not know a project is dead, and they never look at launchd.
 
-## The three actions
+## The three actions and how to undo them
 
 | Action | Does | Undo |
 |---|---|---|
-| pause | Unloads the launchd agent and moves its plist to `~/.binexus/paused`. Comments out the cron line. `pm2 stop`. | Move the plist back and `launchctl bootstrap gui/$(id -u) <plist>`. Uncomment. `pm2 start`. |
+| pause | Unloads the launchd agent and moves its plist to `~/.binexus/paused`. Comments out the cron line. `pm2 stop`. | Move the plist back and `launchctl bootstrap gui/$(id -u) <plist>`. Uncomment the line. `pm2 start`. |
 | strip | Deletes the artifact dirs listed in the report. Source and `.git` untouched. | Reinstall. |
 | delete | Pauses attached jobs, then moves the folder to `~/.binexus/trash/<date>-<name>` with a manifest. | `npx binexus restore <name>` |
 
@@ -63,13 +122,26 @@ project you abandoned in June is still waking up every morning.
 - A protected project cannot be deleted unless the plan carries
   `acknowledgeProtected: true`, and then you must type the project's name.
 - Protection is rechecked at apply time, not just at scan time.
-- The scanner is read-only. Tests never touch real launchd agents or crontab.
-- Set `BINEXUS_HOME` to put the trash on the same volume as your projects if
-  a move fails with EXDEV.
+- The agent only reads. The CLI is the only thing that changes anything,
+  and it only does what the plan says.
+- Set `BINEXUS_HOME` to put the trash on the same volume as your projects
+  if a move fails with `EXDEV`.
 
 ## Not in v1
 
 Cloud resources (Fly, Vercel, DigitalOcean), Docker containers, Windows.
+Open an issue if one of those is the thing costing you money.
+
+## Development
+
+```
+git clone https://github.com/rohan3008/binexus
+cd binexus
+npm test
+```
+
+Tests build their own fixtures in a temp directory and never touch your real
+launchd agents or crontab.
 
 ## License
 
