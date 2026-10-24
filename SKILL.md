@@ -14,7 +14,9 @@ Ask which folder to scan if the user did not say. A sensible default is the
 folder where they keep projects (often `~/Documents`, `~/code`, `~/dev`,
 `~/projects`). Then run:
 
-    npx binexus scan <root> --out <root>/binexus-report.json
+    npx --yes github:rohan3008/binexus scan <root> --out <root>/binexus-report.json
+
+(`npx binexus` also works once the package is on npm; the GitHub form always works.)
 
 Read the JSON. Each project has:
 
@@ -76,7 +78,7 @@ Write `<root>/binexus-plan.json`:
 Only include projects the user chose an action for. `keep` is not an action.
 Then tell the user to run:
 
-    npx binexus apply <root>/binexus-plan.json
+    npx --yes github:rohan3008/binexus apply <root>/binexus-plan.json
 
 It confirms every action again before acting, and nothing is ever unlinked.
 Do not run apply yourself.

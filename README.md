@@ -1,5 +1,11 @@
 # binexus
 
+[![test](https://github.com/rohan3008/binexus/actions/workflows/test.yml/badge.svg)](https://github.com/rohan3008/binexus/actions/workflows/test.yml)
+[![npm](https://img.shields.io/npm/v/binexus)](https://www.npmjs.com/package/binexus)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+Project page: https://rohan3008.github.io/binexus/
+
 **Find the dead vibe-coded projects on your machine and the background jobs
 they left running. You decide what to pause, strip, or delete.**
 
@@ -60,7 +66,7 @@ one at a time, worst offenders first. For each one you choose:
 **3. Run the plan it wrote:**
 
 ```
-npx binexus apply ~/Documents/binexus-plan.json
+npx --yes github:rohan3008/binexus apply ~/Documents/binexus-plan.json
 ```
 
 You get a `[y/N]` for every action. Default is no.
@@ -68,11 +74,14 @@ You get a `[y/N]` for every action. Default is no.
 ## Use it without an agent
 
 ```
-npx binexus scan ~/Documents          # read-only, writes report.json
-npx binexus apply plan.json           # confirms each action, then acts
-npx binexus restore                   # list the trash
-npx binexus restore 2026-10-22-name   # put one project back
+npx --yes github:rohan3008/binexus scan ~/Documents    # read-only, writes report.json
+npx --yes github:rohan3008/binexus apply plan.json     # confirms each action, then acts
+npx --yes github:rohan3008/binexus restore             # list the trash
+npx --yes github:rohan3008/binexus restore 2026-10-22-name
 ```
+
+The `github:` form runs the latest main straight from this repo. Once the
+package is on npm, plain `npx binexus` works too.
 
 `plan.json` looks like this:
 
