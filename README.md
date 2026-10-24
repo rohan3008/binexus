@@ -26,6 +26,30 @@ Background jobs still running for idle/stale projects:
 That is a real scan of the author's laptop. Two daemons had been waking up
 every day for projects untouched since the summer.
 
+## How it looks
+
+**1. Scan.** Read-only. The summary leads with the jobs, because those are
+the quiet cost.
+
+![binexus scan](docs/screenshots/1-scan.png)
+
+**2. Your agent asks you, one project at a time.** Worst offenders first,
+with the signals and a recommendation. You answer keep, pause, strip, or
+delete. Protected projects say why.
+
+![agent conversation](docs/screenshots/2-agent.png)
+
+**3. It writes a plan and hands you the command.** Nothing has changed on
+disk yet.
+
+![plan written](docs/screenshots/3-plan.png)
+
+**4. Apply confirms every action again.** Default no. A protected project is
+refused outright unless you acknowledged it in the plan. Restore brings a
+deleted project back. (Demo folder; the launchd job in it is a fixture.)
+
+![apply and restore](docs/screenshots/4-apply.png)
+
 ## Install the skill (recommended)
 
 binexus is an [Agent Skill](https://agentskills.io). Your coding agent is
