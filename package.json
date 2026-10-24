@@ -1,10 +1,10 @@
 {
   "name": "binexus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Find dead vibe-coded projects and the background jobs they left running. You decide what to pause, strip, or delete.",
   "type": "module",
-  "bin": { "binexus": "bin/binexus.js" },
-  "files": ["bin", "src", "SKILL.md", "README.md", "LICENSE"],
+  "bin": { "binexus": "cli/binexus.js" },
+  "files": ["cli", "src", "skills", ".claude-plugin", "README.md", "LICENSE"],
   "engines": { "node": ">=20" },
   "scripts": { "test": "node --test test/*.test.js" },
   "license": "MIT",

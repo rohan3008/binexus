@@ -50,28 +50,39 @@ deleted project back. (Demo folder; the launchd job in it is a fixture.)
 
 ![apply and restore](docs/screenshots/4-apply.png)
 
-## Install the skill (recommended)
+## Install as a Claude Code plugin (recommended)
+
+```
+claude plugin marketplace add rohan3008/binexus
+claude plugin install binexus@binexus
+```
+
+Or inside a session: `/plugin marketplace add rohan3008/binexus`, then
+`/plugin install binexus@binexus`. Then run:
+
+```
+/binexus:binexus ~/Documents
+```
+
+or just say "run binexus on ~/Documents". The plugin bundles the CLI, so
+nothing is downloaded at scan time.
+
+## Install as a plain skill (Cursor, Codex, Gemini CLI, Copilot, ...)
 
 binexus is an [Agent Skill](https://agentskills.io). Your coding agent is
 the brain, the `binexus` CLI is the hands.
 
-**1. Add the skill to your agent.** This works for Claude Code, Cursor,
-Codex CLI, Gemini CLI, GitHub Copilot and any other agent that reads
+**1. Add the skill to your agent.** This works for any agent that reads
 `SKILL.md` files:
 
 ```
 npx skills add rohan3008/binexus
 ```
 
-No `npx skills`? Copy the skill by hand. For Claude Code:
-
-```
-mkdir -p ~/.claude/skills/binexus
-curl -fsSL https://raw.githubusercontent.com/rohan3008/binexus/main/SKILL.md -o ~/.claude/skills/binexus/SKILL.md
-```
-
-For other agents, put `SKILL.md` wherever that agent loads skills from
-(`.agents/skills/binexus/SKILL.md` is read by most of them).
+No `npx skills`? Copy `skills/binexus/SKILL.md` from this repo into
+wherever your agent loads skills from (`.agents/skills/binexus/SKILL.md`
+is read by most of them; `~/.claude/skills/binexus/SKILL.md` for Claude
+Code).
 
 **2. Ask your agent to run it:**
 
@@ -171,6 +182,8 @@ Open an issue if one of those is the thing costing you money.
 git clone https://github.com/rohan3008/binexus
 cd binexus
 npm test
+claude plugin validate --strict .
+claude --plugin-dir .          # try the plugin without installing it
 ```
 
 Tests build their own fixtures in a temp directory and never touch your real

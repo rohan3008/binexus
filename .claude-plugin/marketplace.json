@@ -1,0 +1,14 @@
+{
+  "name": "binexus",
+  "owner": { "name": "Rohan Shah", "url": "https://github.com/rohan3008" },
+  "description": "binexus: find dead vibe-coded projects and the background jobs they left running.",
+  "plugins": [
+    {
+      "name": "binexus",
+      "source": "./",
+      "description": "Find dead projects and orphaned background jobs; you decide what to pause, strip, or delete.",
+      "category": "productivity",
+      "tags": ["cleanup", "disk", "launchd", "housekeeping"]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
 title: binexus
 description: Find dead vibe-coded projects and the background jobs they left running. You decide what to pause, strip, or delete.
 theme: jekyll-theme-minimal
-exclude: [node_modules, test, docs, bin, src]
+exclude: [node_modules, test, docs, cli, src, skills]

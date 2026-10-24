@@ -12,11 +12,17 @@ or a job yourself. You scan, you ask, you write a plan. The user runs apply.
 
 Ask which folder to scan if the user did not say. A sensible default is the
 folder where they keep projects (often `~/Documents`, `~/code`, `~/dev`,
-`~/projects`). Then run:
+`~/projects`). If the user passed a folder as the skill argument, use that.
 
-    npx --yes github:rohan3008/binexus scan <root> --out <root>/binexus-report.json
+Pick the CLI once and reuse it for every command below:
 
-(`npx binexus` also works once the package is on npm; the GitHub form always works.)
+- Installed as a Claude Code plugin (`${CLAUDE_PLUGIN_ROOT}` is set):
+  `BINEXUS="node ${CLAUDE_PLUGIN_ROOT}/cli/binexus.js"`
+- Otherwise: `BINEXUS="npx --yes github:rohan3008/binexus"`
+
+Then run:
+
+    $BINEXUS scan <root> --out <root>/binexus-report.json
 
 Read the JSON. Each project has:
 
@@ -76,9 +82,9 @@ Write `<root>/binexus-plan.json`:
     }
 
 Only include projects the user chose an action for. `keep` is not an action.
-Then tell the user to run:
+Then tell the user to run (spell out the full command, not `$BINEXUS`):
 
-    npx --yes github:rohan3008/binexus apply <root>/binexus-plan.json
+    <BINEXUS> apply <root>/binexus-plan.json
 
 It confirms every action again before acting, and nothing is ever unlinked.
 Do not run apply yourself.

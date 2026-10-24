@@ -1,0 +1,11 @@
+{
+  "name": "binexus",
+  "displayName": "binexus",
+  "version": "0.2.0",
+  "description": "Find dead vibe-coded projects and the background jobs they left running. Your agent asks you project by project what to pause, strip, or delete; nothing is ever unlinked.",
+  "author": { "name": "Rohan Shah", "url": "https://github.com/rohan3008" },
+  "homepage": "https://rohan3008.github.io/binexus/",
+  "repository": "https://github.com/rohan3008/binexus",
+  "license": "MIT",
+  "keywords": ["cleanup", "disk", "launchd", "cron", "node_modules", "projects", "vibe-coding", "housekeeping"]
+}
