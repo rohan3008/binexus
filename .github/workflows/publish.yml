@@ -1,0 +1,25 @@
+name: publish
+# Publishes to npm when a v* tag is pushed, using npm trusted publishing
+# (OIDC): no token stored anywhere. Enable it once on npmjs.com under the
+# package's Settings > Trusted Publisher: GitHub Actions, repository
+# rohan3008/binexus, workflow publish.yml.
+on:
+  push:
+    tags: ['v*']
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@latest
+      - run: git config --global user.email ci@ci && git config --global user.name ci
+      - run: npm test
+      - run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+      - run: npm publish --provenance --access public
