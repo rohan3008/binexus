@@ -5,6 +5,7 @@ import { homedir } from 'node:os';
 import { scan } from '../src/scan/index.js';
 import { apply, binexusHome } from '../src/apply/index.js';
 import { listTrash, restoreProject } from '../src/apply/trash.js';
+import { closePrompt } from '../src/prompt.js';
 
 const [cmd, ...rest] = process.argv.slice(2);
 const flags = new Set(rest.filter((a) => a.startsWith('--')));
@@ -47,6 +48,7 @@ async function main() {
     const reportPath = resolve(plan.reportPath ?? join(planPath, '..', 'report.json'));
     const report = JSON.parse(await readFile(reportPath, 'utf8'));
     const results = await apply(plan, report, { yesToStrip: flags.has('--yes-to-strip') });
+    closePrompt();
     const n = (s) => results.filter((r) => r.status === s).length;
     console.log(`\n${n('done')} done, ${n('skipped')} skipped, ${n('refused')} refused, ${n('error')} errors`);
     return;
