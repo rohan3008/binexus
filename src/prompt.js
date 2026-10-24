@@ -1,29 +1,31 @@
-import { createInterface } from 'node:readline/promises';
+import { createInterface } from 'node:readline';
 import { stdin, stdout } from 'node:process';
 
-// One readline interface for the whole session. Opening a new one per
-// question breaks piped input: the first interface buffers all of stdin and
-// later questions see end-of-file. End of input answers every question "no".
+// One readline for the whole session, with our own line queue. Readline drops
+// lines that arrive while no question is pending, and the applier does async
+// work between prompts, so piped answers were being lost. End of input
+// answers every remaining question "no". Piped answers are echoed so the
+// transcript reads like an interactive session.
 let rl = null;
 let ended = false;
+const queue = [];
+const waiters = [];
 
 function iface() {
-  if (!rl) {
-    rl = createInterface({ input: stdin, output: stdout });
-    rl.on('close', () => { ended = true; });
-  }
+  if (rl) return rl;
+  rl = createInterface({ input: stdin, output: stdout, terminal: !!stdin.isTTY });
+  rl.on('line', (line) => { const w = waiters.shift(); if (w) w(line); else queue.push(line); });
+  rl.on('close', () => { ended = true; for (const w of waiters.splice(0)) w(null); });
   return rl;
 }
 
 async function ask(q) {
-  if (ended) { stdout.write(`${q}(no input)\n`); return ''; }
-  const r = iface();
-  const answer = await Promise.race([
-    r.question(q),
-    new Promise((resolve) => r.once('close', () => resolve(''))),
-  ]);
-  if (ended) stdout.write('(no input)\n');
-  return answer.trim();
+  iface();
+  stdout.write(q);
+  let line = queue.length ? queue.shift() : ended ? null : await new Promise((r) => waiters.push(r));
+  if (line === null) { stdout.write('(no input)\n'); return ''; }
+  if (!stdin.isTTY) stdout.write(`${line}\n`);
+  return line.trim();
 }
 
 export async function confirm(question) {
