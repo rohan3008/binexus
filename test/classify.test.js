@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { classify } from '../src/scan/classify.js';
+import { classify } from '../skills/binexus/src/scan/classify.js';
 
 const now = Date.parse('2026-10-22T00:00:00Z');
 const day = 86400000;

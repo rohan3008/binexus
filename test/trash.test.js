@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { readFile, access } from 'node:fs/promises';
 import { makeTmp, tree } from './helpers.js';
-import { deleteProject, listTrash, restoreProject } from '../src/apply/trash.js';
+import { deleteProject, listTrash, restoreProject } from '../skills/binexus/src/apply/trash.js';
 
 test('delete moves to trash with manifest; list and restore round-trip', async () => {
   const { dir, cleanup } = await makeTmp();

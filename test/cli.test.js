@@ -5,7 +5,7 @@ import { writeFile, access } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { makeTmp, tree, initRepo, bareRepo } from './helpers.js';
 
-const BIN = new URL('../cli/binexus.js', import.meta.url).pathname;
+const BIN = new URL('../skills/binexus/cli/binexus.js', import.meta.url).pathname;
 
 function run(args, { input, env }) {
   return new Promise((resolve) => {

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { makeTmp, tree } from './helpers.js';
-import { findProjects } from '../src/scan/walk.js';
+import { findProjects } from '../skills/binexus/src/scan/walk.js';
 
 test('finds project roots by marker and does not descend into them', async () => {
   const { dir, cleanup } = await makeTmp();

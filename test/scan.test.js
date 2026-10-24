@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { makeTmp, tree, initRepo, bareRepo } from './helpers.js';
-import { scan } from '../src/scan/index.js';
+import { scan } from '../skills/binexus/src/scan/index.js';
 
 test('scan assembles a versioned report with attached and unmatched jobs', async () => {
   const { dir, cleanup } = await makeTmp();

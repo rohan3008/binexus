@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { utimes } from 'node:fs/promises';
 import { makeTmp, tree } from './helpers.js';
-import { inspectTree } from '../src/scan/artifacts.js';
+import { inspectTree } from '../skills/binexus/src/scan/artifacts.js';
 
 test('sums bytes, lists artifacts, ignores artifacts and .git for mtime', async () => {
   const { dir, cleanup } = await makeTmp();

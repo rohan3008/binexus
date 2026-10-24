@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
 import { makeTmp } from './helpers.js';
-import { commentCronLine, pauseJob } from '../src/apply/pause.js';
+import { commentCronLine, pauseJob } from '../skills/binexus/src/apply/pause.js';
 
 test('commentCronLine comments exactly the matching line', () => {
   const text = '0 7 * * * a\n0 8 * * * b\n';

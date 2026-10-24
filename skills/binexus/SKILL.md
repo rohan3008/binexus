@@ -14,15 +14,16 @@ Ask which folder to scan if the user did not say. A sensible default is the
 folder where they keep projects (often `~/Documents`, `~/code`, `~/dev`,
 `~/projects`). If the user passed a folder as the skill argument, use that.
 
-Pick the CLI once and reuse it for every command below:
+The CLI ships inside this skill's folder, at `cli/binexus.js` next to this
+SKILL.md. It has no dependencies and downloads nothing. Work out its absolute
+path once and reuse it for every command below:
 
-- Installed as a Claude Code plugin (`${CLAUDE_PLUGIN_ROOT}` is set):
-  `BINEXUS="node ${CLAUDE_PLUGIN_ROOT}/cli/binexus.js"`
-- Otherwise: `BINEXUS="npx --yes github:rohan3008/binexus"`
+- Installed as a Claude Code plugin: `node ${CLAUDE_PLUGIN_ROOT}/skills/binexus/cli/binexus.js`
+- Installed as a plain skill: `node <this skill's folder>/cli/binexus.js`
 
-Then run:
+Call that `<BINEXUS>` below. Then run:
 
-    $BINEXUS scan <root> --out <root>/binexus-report.json
+    <BINEXUS> scan <root> --out <root>/binexus-report.json
 
 Read the JSON. Each project has:
 
@@ -57,7 +58,7 @@ ask the user to pick exactly one:
 - **pause**: stop its background jobs, touch nothing else
 - **strip**: delete regenerable artifacts only, keep source and git
 - **delete**: move the whole folder to `~/.binexus/trash` (restorable with
-  `npx binexus restore`). Attached jobs are paused first.
+  `<BINEXUS> restore`). Attached jobs are paused first.
 
 If the user is unsure, offer to look inside: read the README, `git log`, and
 recent files. You may read. You must not edit, install, or run the project.
@@ -82,7 +83,7 @@ Write `<root>/binexus-plan.json`:
     }
 
 Only include projects the user chose an action for. `keep` is not an action.
-Then tell the user to run (spell out the full command, not `$BINEXUS`):
+Then tell the user to run (spell out the full absolute command):
 
     <BINEXUS> apply <root>/binexus-plan.json
 

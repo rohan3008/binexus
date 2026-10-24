@@ -120,9 +120,9 @@ or just say **"run binexus on ~/Documents"**. The skill also triggers on
 its own when you ask things like "what's taking up space", "what's still
 running in the background", or "clean up my old projects".
 
-The plugin bundles the CLI, so a scan downloads nothing and runs offline.
-Updates: `claude plugin update binexus@binexus`. Third-party marketplaces
-do not auto-update by default.
+The plugin bundles the CLI inside the skill folder, so a scan downloads
+nothing and runs offline. Updates: `claude plugin update binexus@binexus`.
+Third-party marketplaces do not auto-update by default.
 
 Requirements: Claude Code, Node 20 or newer, macOS or Linux.
 
@@ -135,37 +135,36 @@ agent that reads `SKILL.md` files can use it. Your agent is the brain, the
 **1. Add the skill:**
 
 ```
-npx skills add rohan3008/binexus
+npx skills@1.7.4 add rohan3008/binexus
 ```
 
-This detects which agents you have installed and puts the skill where each
-one looks. No `npx skills`? Copy `skills/binexus/SKILL.md` from this repo
-into your agent's skills folder by hand. `.agents/skills/binexus/SKILL.md`
-is read by most agents; Claude Code also reads
-`~/.claude/skills/binexus/SKILL.md`.
+This detects which agents you have installed and copies the skill folder,
+CLI included, to where each one looks. No `npx skills`? Copy the whole
+`skills/binexus/` folder from this repo into your agent's skills folder by
+hand. `.agents/skills/binexus/` is read by most agents; Claude Code also
+reads `~/.claude/skills/binexus/`.
 
 **2. Ask your agent:**
 
 > run binexus on ~/Documents
 
-Installed this way, the skill runs the CLI straight from GitHub with
-`npx --yes github:rohan3008/binexus`, so the first run downloads a 30 KB
-package.
+Installed this way, the skill runs the CLI from its own folder. Nothing is
+downloaded at scan time.
 
 ## Use the CLI on its own
 
 No agent needed. The CLI is read-only until you hand it a plan.
 
 ```
-npx --yes github:rohan3008/binexus scan ~/Documents       # writes report.json
-npx --yes github:rohan3008/binexus apply plan.json        # confirms each action, then acts
-npx --yes github:rohan3008/binexus restore                # list the trash
-npx --yes github:rohan3008/binexus restore 2026-10-22-name
+npx binexus@0.2.1 scan ~/Documents       # writes report.json
+npx binexus@0.2.1 apply plan.json        # confirms each action, then acts
+npx binexus@0.2.1 restore                # list the trash
+npx binexus@0.2.1 restore 2026-10-22-name
 ```
 
-Once the package is on npm, plain `npx binexus` works the same way. If you
-installed the plugin, the bundled copy is at
-`~/.claude/plugins/marketplaces/binexus/cli/binexus.js`.
+If you installed the plugin, the same CLI is already on disk at
+`~/.claude/plugins/marketplaces/binexus/skills/binexus/cli/binexus.js` and
+runs with `node`.
 
 You write `plan.json` yourself in this case. See [File formats](#file-formats).
 
@@ -238,6 +237,24 @@ is ever proposed for them.
 
 Strip is the boring win and is safe to say yes to freely. Pause is the
 interesting one. Delete is reversible until you empty the trash yourself.
+
+## What it runs, sends, and fetches
+
+So there are no surprises, this is the complete list.
+
+- **Runs locally:** `git` (log, status, rev-list, ls-files) inside each
+  project; `launchctl bootout`, `crontab -l`, `crontab -`, and `pm2` only
+  during `apply`, and only for the actions you confirmed.
+- **Reads:** the folder you point it at, `~/Library/LaunchAgents`, your
+  crontab, and the pm2 process list if pm2 is installed.
+- **Writes:** `binexus-report.json` and `binexus-plan.json` in the scanned
+  folder, and `~/.binexus/` for the trash and paused plists.
+- **Sends:** nothing. There is no network code in the plugin. No telemetry,
+  no analytics, no update check.
+- **Fetches:** nothing. The CLI ships inside the plugin with zero
+  dependencies. No package is downloaded at install or run time.
+- **Personal data:** none is collected or stored beyond the file paths and
+  timestamps written into the local report.
 
 ## Safety model
 
@@ -334,7 +351,7 @@ used.
 | `--yes-to-strip` | off | `apply` skips the prompt for strip actions only; pause and delete always prompt |
 | `BINEXUS_HOME` | `~/.binexus` | where `trash/` and `paused/` live. Set it to a folder on the same volume as your projects if moves fail with `EXDEV` |
 
-The 30 and 120 day thresholds are constants in `src/scan/classify.js`. They
+The 30 and 120 day thresholds are constants in `skills/binexus/src/scan/classify.js`. They
 shape the conversation order, not what is allowed, so there is no flag for
 them yet. Open an issue if you need one.
 
@@ -402,21 +419,26 @@ skill description. The full skill text loads only when it triggers.
 
 Four parts, each with one job, each testable alone.
 
+Everything the plugin ships lives under `skills/binexus/`, so the Claude
+Code plugin, the plain skill, and the npm package all carry the same files.
+
 ```
-cli/binexus.js          argument parsing and output only
-src/scan/walk.js        find project folders
-src/scan/git.js         last commit, unpushed, dirty, upstream, newest non-ignored mtime
-src/scan/artifacts.js   one walk per project: sizes and artifact dirs
-src/scan/jobs.js        parse launchd plists, crontab, pm2; match to projects
-src/scan/classify.js    active / idle / stale, protected
-src/scan/index.js       assemble report.json
-src/apply/validate.js   check a plan against its report
-src/apply/pause.js      launchctl, crontab, pm2
-src/apply/strip.js      remove artifact dirs, refusing paths outside the project
-src/apply/trash.js      move to trash with manifest, list, restore
-src/apply/index.js      the confirm-then-act loop
-src/prompt.js           y/N and typed-name prompts
-skills/binexus/SKILL.md the conversation the agent runs
+skills/binexus/SKILL.md               the conversation the agent runs
+skills/binexus/cli/binexus.js         argument parsing and output only
+skills/binexus/src/scan/walk.js       find project folders
+skills/binexus/src/scan/git.js        last commit, unpushed, dirty, upstream, newest non-ignored mtime
+skills/binexus/src/scan/artifacts.js  one walk per project: sizes and artifact dirs
+skills/binexus/src/scan/jobs.js       parse launchd plists, crontab, pm2; match to projects
+skills/binexus/src/scan/classify.js   active / idle / stale, protected
+skills/binexus/src/scan/index.js      assemble report.json
+skills/binexus/src/apply/validate.js  check a plan against its report
+skills/binexus/src/apply/pause.js     launchctl, crontab, pm2
+skills/binexus/src/apply/strip.js     remove artifact dirs, refusing paths outside the project
+skills/binexus/src/apply/trash.js     move to trash with manifest, list, restore
+skills/binexus/src/apply/index.js     the confirm-then-act loop
+skills/binexus/src/prompt.js          y/N and typed-name prompts
+.claude-plugin/plugin.json            plugin manifest
+.claude-plugin/marketplace.json       the one-plugin marketplace this repo serves
 ```
 
 Every side effect is injected: shell commands, prompts, the clock, the home

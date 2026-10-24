@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePlist, parseCrontab, parsePm2, attachJobs } from '../src/scan/jobs.js';
+import { parsePlist, parseCrontab, parsePm2, attachJobs } from '../skills/binexus/src/scan/jobs.js';
 
 const HOME = '/Users/me';
 

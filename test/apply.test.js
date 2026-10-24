@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { access, readFile } from 'node:fs/promises';
 import { makeTmp, tree } from './helpers.js';
-import { apply } from '../src/apply/index.js';
+import { apply } from '../skills/binexus/src/apply/index.js';
 
 function deps(dir, answers) {
   const log = [];

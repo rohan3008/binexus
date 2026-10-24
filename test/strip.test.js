@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { readFile, access } from 'node:fs/promises';
 import { makeTmp, tree } from './helpers.js';
-import { stripArtifacts } from '../src/apply/strip.js';
+import { stripArtifacts } from '../skills/binexus/src/apply/strip.js';
 
 test('removes only listed artifact dirs inside the project', async () => {
   const { dir, cleanup } = await makeTmp();

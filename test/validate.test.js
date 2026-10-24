@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePlan } from '../src/apply/validate.js';
+import { validatePlan } from '../skills/binexus/src/apply/validate.js';
 
 const report = { version: 1, projects: [{ path: '/r/a', name: 'a', protected: false, artifacts: [], jobs: [] }] };
 

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { writeFile } from 'node:fs/promises';
 import { makeTmp, tree, initRepo, bareRepo, git } from './helpers.js';
-import { gitSignals } from '../src/scan/git.js';
+import { gitSignals } from '../skills/binexus/src/scan/git.js';
 
 test('non-git folder', async () => {
   const { dir, cleanup } = await makeTmp();
@@ -55,7 +55,7 @@ test('newestTrackedMtime ignores gitignored output but counts untracked source',
   const { dir, cleanup } = await makeTmp();
   await initRepo(dir);
   const { utimes, mkdir } = await import('node:fs/promises');
-  const { newestTrackedMtime } = await import('../src/scan/git.js');
+  const { newestTrackedMtime } = await import('../skills/binexus/src/scan/git.js');
   const old = new Date('2020-01-01T00:00:00Z');
   const mid = new Date('2022-01-01T00:00:00Z');
   const fresh = new Date('2026-10-01T00:00:00Z');
